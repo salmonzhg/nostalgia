@@ -4,13 +4,17 @@ import com.google.auto.common.BasicAnnotationProcessor;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableSet;
 import com.salmonzhg.nostalgia.processor.step.ReceiveStep;
+import com.salmonzhg.nostalgia.processor.step.TakeStep;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 
 /**
  * author: Salmon
@@ -22,13 +26,14 @@ import javax.lang.model.SourceVersion;
 @AutoService(Processor.class)
 public class NostalgiaProcessor extends BasicAnnotationProcessor {
 
-    public static List<NostalgiaConfig> configs = new ArrayList<>();
+    public static Map<Element, NostalgiaConfig> configMap = new HashMap<>();
     private boolean hasGenerated = false;
 
     @Override
     protected Iterable<? extends ProcessingStep> initSteps() {
         return ImmutableSet.of(
-                new ReceiveStep()
+                new ReceiveStep(),
+                new TakeStep()
         );
     }
 
@@ -36,6 +41,7 @@ public class NostalgiaProcessor extends BasicAnnotationProcessor {
     protected void postRound(RoundEnvironment roundEnv) {
         super.postRound(roundEnv);
         if (!hasGenerated) {
+            List<NostalgiaConfig> configs = new ArrayList<>(configMap.values());
             CodeGenerator.generate(configs, processingEnv.getFiler());
             hasGenerated = true;
         }

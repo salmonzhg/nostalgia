@@ -21,20 +21,19 @@ import javax.lang.model.element.ExecutableElement;
 
 /**
  * author: Salmon
- * date: 2017-06-14 23:49
+ * date: 2017-06-30 11:14
  * github: https://github.com/billy96322
  * email: salmonzhg@foxmail.com
  */
 
-public class ReceiveStep implements BasicAnnotationProcessor.ProcessingStep {
+public class TakeStep implements BasicAnnotationProcessor.ProcessingStep {
     @Override
     public Set<? extends Class<? extends Annotation>> annotations() {
-        return ImmutableSet.of(Receive.class);
+        return ImmutableSet.of(Take.class);
     }
 
     @Override
     public Set<Element> process(SetMultimap<Class<? extends Annotation>, Element> elementsByAnnotation) {
-
         Set<Map.Entry<Class<? extends Annotation>, Collection<Element>>> entries = elementsByAnnotation.asMap().entrySet();
         Iterator<Map.Entry<Class<? extends Annotation>, Collection<Element>>> iterator = entries.iterator();
         while (iterator.hasNext()) {
@@ -48,22 +47,13 @@ public class ReceiveStep implements BasicAnnotationProcessor.ProcessingStep {
 
                 boolean hasCreate = NostalgiaProcessor.configMap.containsKey(executableElement);
 
-                if (hasCreate) {
-                    config = NostalgiaProcessor.configMap.get(executableElement);
-                } else {
-                    config = new NostalgiaConfig(executableElement);
-                }
+                if (!hasCreate) return new HashSet<>();
 
-                config.setTag(MoreElements.asExecutable(executableElement).getAnnotation(Receive.class).tag());
+                config = NostalgiaProcessor.configMap.get(executableElement);
 
-                config.setThread(MoreElements.asExecutable(executableElement).getAnnotation(Receive.class).scheduler());
-
-                if (!hasCreate)
-                    NostalgiaProcessor.configMap.put(executableElement, config);
+                config.setTakeTimes(MoreElements.asExecutable(executableElement).getAnnotation(Take.class).times());
             }
         }
-        return new HashSet<Element>();
+        return new HashSet<>();
     }
-
-
 }

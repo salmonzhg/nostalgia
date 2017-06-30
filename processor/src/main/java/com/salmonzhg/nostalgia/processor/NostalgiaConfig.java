@@ -15,10 +15,19 @@ public class NostalgiaConfig {
 
     private String tag;
     private Scheduler thread;
+    private int takeTimes;
     private ExecutableElement element;
 
     public NostalgiaConfig(ExecutableElement element) {
         this.element = element;
+    }
+
+    public int getTakeTimes() {
+        return takeTimes;
+    }
+
+    public void setTakeTimes(int takeTimes) {
+        this.takeTimes = takeTimes;
     }
 
     public Scheduler getThread() {

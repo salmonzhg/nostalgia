@@ -94,6 +94,7 @@ public class CodeGenerator {
                                 getNostalgiaStr() +
                                 getSubscibeCodeStr(config) +
                                 getObserverOnThreadStr(config) +
+                                getTakeStr(config) +
                                 getSubscribeStr(config) +
                                 ")"
                 )
@@ -156,6 +157,15 @@ public class CodeGenerator {
 
     private static String getObserverOnThreadStr(NostalgiaConfig config) {
         return ".observeOn(" + getNostalgiaStr() + ".internal.resolveSchedulers(" + config.getThread().toString() +"))";
+    }
+
+    private static String getTakeStr(NostalgiaConfig config) {
+        int times = config.getTakeTimes();
+        if (times > 1)
+            return ".take(" + times + ")";
+        else
+            return "";
+
     }
 
     private static String getReceiveInvokeStr(NostalgiaConfig config) {
