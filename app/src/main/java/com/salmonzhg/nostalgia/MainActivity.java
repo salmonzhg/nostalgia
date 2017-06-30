@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Take(times = 3)
     @Receive(tag = "wer")
     public void onBaseTypeParam(int i) {
         Log.d("asd", "onBaseTypeParam: " + i);
