@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 
@@ -26,7 +27,11 @@ import javax.lang.model.element.ExecutableElement;
  * email: salmonzhg@foxmail.com
  */
 
-public class TakeStep implements BasicAnnotationProcessor.ProcessingStep {
+public class TakeStep extends BaseStep {
+    public TakeStep(ProcessingEnvironment processingEnvironment) {
+        super(processingEnvironment);
+    }
+
     @Override
     public Set<? extends Class<? extends Annotation>> annotations() {
         return ImmutableSet.of(Take.class);
@@ -43,13 +48,15 @@ public class TakeStep implements BasicAnnotationProcessor.ProcessingStep {
             while (iterator1.hasNext()) {
                 ExecutableElement executableElement = (ExecutableElement) iterator1.next();
 
-                NostalgiaConfig config;
+                String canonicalName = executableElement.getEnclosingElement().asType().toString();
 
-                boolean hasCreate = NostalgiaProcessor.configMap.containsKey(executableElement);
+                if (!NostalgiaProcessor.generatorMap.containsKey(canonicalName)) continue;
 
-                if (!hasCreate) return new HashSet<>();
+                Map<Element, NostalgiaConfig> configMap = NostalgiaProcessor.generatorMap.get(canonicalName).getConfigMap();
 
-                config = NostalgiaProcessor.configMap.get(executableElement);
+                if (!configMap.containsKey(executableElement)) continue;
+
+                NostalgiaConfig config = configMap.get(executableElement);
 
                 config.setTakeTimes(MoreElements.asExecutable(executableElement).getAnnotation(Take.class).times());
             }

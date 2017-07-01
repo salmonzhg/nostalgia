@@ -25,15 +25,15 @@ import javax.lang.model.element.Element;
 
 @AutoService(Processor.class)
 public class NostalgiaProcessor extends BasicAnnotationProcessor {
-
-    public static Map<Element, NostalgiaConfig> configMap = new HashMap<>();
     private boolean hasGenerated = false;
+
+    public static Map<String, Generator> generatorMap = new HashMap<>();
 
     @Override
     protected Iterable<? extends ProcessingStep> initSteps() {
         return ImmutableSet.of(
-                new ReceiveStep(),
-                new TakeStep()
+                new ReceiveStep(processingEnv),
+                new TakeStep(processingEnv)
         );
     }
 
@@ -41,8 +41,7 @@ public class NostalgiaProcessor extends BasicAnnotationProcessor {
     protected void postRound(RoundEnvironment roundEnv) {
         super.postRound(roundEnv);
         if (!hasGenerated) {
-            List<NostalgiaConfig> configs = new ArrayList<>(configMap.values());
-            CodeGenerator.generate(configs, processingEnv.getFiler());
+            CodeGenerator.generate(new ArrayList<Generator>(generatorMap.values()), processingEnv);
             hasGenerated = true;
         }
     }
