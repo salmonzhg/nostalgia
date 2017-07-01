@@ -1,40 +1,22 @@
 package com.salmonzhg.nostalgia.core;
 
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-
 /**
  * author: Salmon
- * date: 2017-06-29 11:39
+ * date: 2017-06-30 11:47
  * github: https://github.com/billy96322
  * email: salmonzhg@foxmail.com
  */
 
-public class Unbinder {
+public interface Unbinder {
 
-    private Object bindTarget;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    boolean isUnbound();
 
-    public Unbinder(Object bindTarget) {
-        this.bindTarget = bindTarget;
-    }
+    void unbind();
 
-    public void bind(Disposable disposable) {
-        this.compositeDisposable.add(disposable);
-    }
+    Unbinder EMPTY = new Unbinder() {
+        @Override
+        public boolean isUnbound() {return false;}
 
-    public boolean isUnbinded() {
-        return compositeDisposable.isDisposed();
-    }
-
-    public void unBind() {
-        if (!isUnbinded()) {
-            compositeDisposable.clear();
-        }
-        Nostalgia.unbindInternal(bindTarget);
-    }
-
-    static Unbinder EMPTY(Object bindTarget) {
-        return new Unbinder(bindTarget);
-    }
+        @Override public void unbind() { }
+    };
 }

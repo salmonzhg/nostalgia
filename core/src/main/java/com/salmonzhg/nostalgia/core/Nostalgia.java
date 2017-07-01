@@ -2,7 +2,10 @@ package com.salmonzhg.nostalgia.core;
 
 import com.salmonzhg.nostalgia.core.annotation.Scheduler;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.reactivex.Observable;
@@ -21,12 +24,10 @@ import io.reactivex.subjects.Subject;
 
 public class Nostalgia {
     private static Subject<Event> mBus = PublishSubject.create();
-    private static INostalgiaGenerator generator;
     private static Map<Integer, Unbinder> bindMap = new ConcurrentHashMap<>();
 
     public static class internal {
-        public static final String GENERATE_PACKAGE_NAME = "com.salmonzhg.nostalgia.generate";
-        public static final String GENERATE_CLASS_NAME = "NostalgiaGeneratorImpl";
+        public static final String GENERATE_CLASS_NAME_POSTFIX = "_NostalgiaBinding";
         public static io.reactivex.Scheduler mainScheduler;
 
         public static io.reactivex.Scheduler resolveSchedulers(Scheduler nostalgiaScheduler) {
@@ -50,6 +51,11 @@ public class Nostalgia {
             }
             return scheduler;
         }
+
+        public static void removeBinding(Object object) {
+            int hashCode = System.identityHashCode(object);
+            bindMap.remove(hashCode);
+        }
     }
 
     public static void initialize(io.reactivex.Scheduler mainThreadScheduler) {
@@ -65,45 +71,60 @@ public class Nostalgia {
     }
 
     public static Unbinder bind(Object object) {
-
         initializationCheck();
 
         int hashCode = System.identityHashCode(object);
         Unbinder unbinder;
 
-        if (generator == null) return Unbinder.EMPTY(object);
-
         unbinder = bindMap.get(hashCode);
 
-        if (unbinder == null || unbinder.isUnbinded()) {
-            unbinder = generator.generateBinding(object);
+        if (unbinder == null || unbinder.isUnbound()) {
+            unbinder = generateBinding(object);
             bindMap.put(hashCode, unbinder);
         }
 
         return unbinder;
     }
 
-    private static void initializationCheck() {
+    private static Unbinder generateBinding(Object targetObject) {
         try {
-            if (generator == null) {
-                Class<?> bindingClass = Class.forName(internal.GENERATE_PACKAGE_NAME + "." + internal.GENERATE_CLASS_NAME);
-                generator = (INostalgiaGenerator) bindingClass.newInstance();
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            Class<?> targetClass = targetObject.getClass();
+            Constructor<? extends Unbinder> constructor = findBindingConstructorForClass(targetClass);
+
+            if (constructor == null) return Unbinder.EMPTY;
+
+            return (Unbinder) constructor.newInstance(targetObject);
+
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
         }
+        return Unbinder.EMPTY;
+    }
 
+    private static void initializationCheck() {
         if (internal.mainScheduler == null)
             throw new RuntimeException("have you call Nostalgia.initialize(AndroidSchedulers.mainThread())?");
     }
 
-    static void unbindInternal(Object object) {
-        int hashCode = System.identityHashCode(object);
-        bindMap.remove(hashCode);
+    private static Constructor<? extends Unbinder> findBindingConstructorForClass(Class<?> cls) {
+        Constructor<? extends Unbinder> bindingCtor;
+        String clsName = cls.getName();
+        if (clsName.startsWith("android.") || clsName.startsWith("java.")) {
+            return null;
+        }
+        try {
+            Class<?> bindingClass = Class.forName(clsName + internal.GENERATE_CLASS_NAME_POSTFIX);
+            bindingCtor = (Constructor<? extends Unbinder>) bindingClass.getConstructor(Object.class);
+        } catch (ClassNotFoundException e) {
+            bindingCtor = findBindingConstructorForClass(cls.getSuperclass());
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Unable to find binding constructor for " + clsName, e);
+        }
+        return bindingCtor;
     }
 
     public static Observable<Event> toObservable(final String tag) {
