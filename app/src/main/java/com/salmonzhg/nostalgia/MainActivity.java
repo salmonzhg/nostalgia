@@ -28,19 +28,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Receive(tag = "tag" , scheduler = Scheduler.MAINTHREAD)
-    public void onReceived(String contentStr) {
+    void onReceived(String contentStr) {
         Log.d("asd", "onReceived: " + contentStr);
     }
 
     @Receive(tag = "wer")
-    public void onEmptyParam() {
+    void onEmptyParam() {
         Log.d("asd", "onEmptyParam: ");
     }
 
 
     @Take(times = 3)
     @Receive(tag = "wer")
-    public void onBaseTypeParam(int i) {
+    void onBaseTypeParam(int i) {
         Log.d("asd", "onBaseTypeParam: " + i);
     }
 
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbinder.unBind();
+        unbinder.unbind();
     }
 
     public void second(View view) {
