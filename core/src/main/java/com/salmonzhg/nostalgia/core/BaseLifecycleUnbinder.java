@@ -41,4 +41,10 @@ public class BaseLifecycleUnbinder extends BaseUnbinder {
             }
         };
     }
+
+    @Override
+    public void unbind() {
+        if (lifecycleAdapter != null) lifecycleAdapter.destroy();
+        super.unbind();
+    }
 }
