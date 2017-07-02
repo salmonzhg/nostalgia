@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.salmonzhg.lifecycleadapter_zhihu_rxlifecycle.RxLifecycleAdapter;
 import com.salmonzhg.nostalgia.core.Nostalgia;
 import com.salmonzhg.nostalgia.core.Unbinder;
 import com.salmonzhg.nostalgia.core.annotation.LifecycleFilter;
@@ -23,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        unbinder = Nostalgia.bind(this);
+        unbinder = Nostalgia.bind(this, new RxLifecycleAdapter(this));
 
     }
 
@@ -38,10 +39,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    @Receive(tag = "wer")
+    @LifecycleFilter(from = ActivityLifecycle.RESUME, to = ActivityLifecycle.PAUSE)
+    void onBaseTypeParamWhenVisible(int i) {
+        Log.d("asd", "onBaseTypeParamWhenVisible: " + i);
+    }
+
     @Take(times = 3)
     @Receive(tag = "wer")
-    void onBaseTypeParam(int i) {
-        Log.d("asd", "onBaseTypeParam: " + i);
+    void onBaseTypeParamTake3Times(int i) {
+        Log.d("asd", "onBaseTypeParamTake3Times: " + i);
     }
 
 
@@ -61,6 +69,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void send(View view) {
-        Nostalgia.post("wer", "a content");
+        Nostalgia.post("wer", 10);
     }
 }

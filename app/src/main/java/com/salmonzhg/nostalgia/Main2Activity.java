@@ -6,7 +6,10 @@ import android.view.View;
 
 import com.salmonzhg.nostalgia.core.Nostalgia;
 import com.salmonzhg.nostalgia.core.Unbinder;
+import com.salmonzhg.nostalgia.core.annotation.LifecycleFilter;
 import com.salmonzhg.nostalgia.core.annotation.Receive;
+import com.salmonzhg.nostalgia.core.annotation.Take;
+import com.salmonzhg.nostalgia.core.lifecycleadapter.ActivityLifecycle;
 
 public class Main2Activity extends AppCompatActivity {
     Unbinder unbinder;
@@ -19,7 +22,7 @@ public class Main2Activity extends AppCompatActivity {
         unbinder = Nostalgia.bind(this);
     }
 
-
+    @Take(times = 2)
     @Receive(tag = "tag")
     void onMain2Received() {
 

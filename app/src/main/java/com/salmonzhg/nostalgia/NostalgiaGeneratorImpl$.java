@@ -1,14 +1,14 @@
 package com.salmonzhg.nostalgia;
 
-import com.salmonzhg.nostalgia.core.BaseUnbinder;
+import com.salmonzhg.nostalgia.core.BaseLifecycleUnbinder;
 import com.salmonzhg.nostalgia.core.Event;
 import com.salmonzhg.nostalgia.core.Nostalgia;
 import com.salmonzhg.nostalgia.core.annotation.Scheduler;
+import com.salmonzhg.nostalgia.core.lifecycleadapter.ActivityLifecycle;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Predicate;
 
 /**
  * this is for experiment
@@ -18,8 +18,7 @@ import io.reactivex.functions.Predicate;
  * email: salmonzhg@foxmail.com
  */
 
-public class NostalgiaGeneratorImpl$ extends BaseUnbinder {
-
+public class NostalgiaGeneratorImpl$ extends BaseLifecycleUnbinder {
 
     public NostalgiaGeneratorImpl$(final Object bindTarget) {
         super(bindTarget);
@@ -27,12 +26,7 @@ public class NostalgiaGeneratorImpl$ extends BaseUnbinder {
         if (bindTarget.getClass().getCanonicalName().equals("com.salmonzhg.nostalgia.MainActivity")) {
             bind(Nostalgia.toObservable("tag")
                     .observeOn(Nostalgia.internal.resolveSchedulers(Scheduler.MAINTHREAD))
-                    .filter(new Predicate<Event>() {
-                        @Override
-                        public boolean test(@NonNull Event event) throws Exception {
-                            return false;
-                        }
-                    })
+                    .filter(lifecycleFilter(ActivityLifecycle.CREATE, ActivityLifecycle.DESTROY))
                     .subscribe(new Consumer<Event>() {
                         @Override
                         public void accept(Event event) throws Exception {
@@ -53,4 +47,5 @@ public class NostalgiaGeneratorImpl$ extends BaseUnbinder {
                     }));
         }
     }
+
 }
