@@ -1,10 +1,12 @@
 package com.salmonzhg.nostalgia.processor;
 
+import com.salmonzhg.nostalgia.core.BaseLifecycleUnbinder;
 import com.salmonzhg.nostalgia.core.BaseUnbinder;
 import com.salmonzhg.nostalgia.core.EmptyContent;
 import com.salmonzhg.nostalgia.core.Event;
 import com.salmonzhg.nostalgia.core.Nostalgia;
 import com.salmonzhg.nostalgia.core.annotation.Scheduler;
+import com.salmonzhg.nostalgia.core.lifecycleadapter.ActivityLifecycle;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -36,6 +38,12 @@ public class Generator {
     private String packageStr;
     private String classStr;
     private String canonicalName;
+    private TypeMirror typeMirror;
+
+    public void setTypeMirror(TypeMirror typeMirror) {
+        this.typeMirror = typeMirror;
+    }
+
     private Map<Element, NostalgiaConfig> configMap = new HashMap<>();
     private List<NostalgiaConfig> configList;
 
@@ -63,6 +71,13 @@ public class Generator {
                 .addStaticImport(Scheduler.IO)
                 .addStaticImport(Scheduler.NEWTHREAD)
                 .addStaticImport(Scheduler.COMPUTATION)
+                .addStaticImport(ActivityLifecycle.UNDEFINED)
+                .addStaticImport(ActivityLifecycle.CREATE)
+                .addStaticImport(ActivityLifecycle.START)
+                .addStaticImport(ActivityLifecycle.RESUME)
+                .addStaticImport(ActivityLifecycle.PAUSE)
+                .addStaticImport(ActivityLifecycle.STOP)
+                .addStaticImport(ActivityLifecycle.DESTROY)
                 .build();
     }
 
@@ -71,11 +86,25 @@ public class Generator {
     }
 
     private TypeSpec typeSpec() {
-        return TypeSpec.classBuilder(classStr)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .superclass(BaseUnbinder.class)
-                .addMethod(generateBindingMethodSpec())
-                .build();
+        TypeSpec.Builder builder = TypeSpec.classBuilder(classStr);
+        builder.addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addMethod(generateBindingMethodSpec());
+
+        builder.superclass(isLifecycleAnnotationContained() ?
+                BaseLifecycleUnbinder.class : BaseUnbinder.class);
+
+        return builder.build();
+    }
+
+    private boolean isLifecycleAnnotationContained() {
+        boolean isContained = false;
+        for (NostalgiaConfig config : configList) {
+            if (!isLifecycleUndefined(config)) {
+                isContained = true;
+                break;
+            }
+        }
+        return isContained;
     }
 
     private MethodSpec generateBindingMethodSpec() {
@@ -97,6 +126,7 @@ public class Generator {
                     getNostalgiaStr() +
                     getSubscibeCodeStr(config) +
                     getObserverOnThreadStr(config) +
+                    getLifecycleFilterStr(config) +
                     getTakeStr(config) +
                     getSubscribeStr(config) +
                     ")");
@@ -124,6 +154,16 @@ public class Generator {
         else
             return "";
 
+    }
+
+    private static String getLifecycleFilterStr(NostalgiaConfig config) {
+        if (isLifecycleUndefined(config)) return "";
+        else return ".filter(lifecycleFilter("+config.getLifecycleFrom()+", "+config.getLifecycleTo()+"))";
+    }
+
+    private static boolean isLifecycleUndefined(NostalgiaConfig config) {
+        return config.getLifecycleFrom() == ActivityLifecycle.UNDEFINED &&
+                config.getLifecycleTo() == ActivityLifecycle.UNDEFINED;
     }
 
     private static String getSubscribeStr(NostalgiaConfig config) {

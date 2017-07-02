@@ -53,18 +53,20 @@ public class ReceiveStep extends BaseStep {
             while (iterator1.hasNext()) {
                 ExecutableElement executableElement = (ExecutableElement) iterator1.next();
 
-                String canonicalName = executableElement.getEnclosingElement().asType().toString();
+                Element enclosingElement = executableElement.getEnclosingElement();
+
+                String canonicalName = enclosingElement.asType().toString();
 
                 Generator generator = new Generator();
 
                 if (!NostalgiaProcessor.generatorMap.containsKey(canonicalName)) {
-                    Element enclosingElement = executableElement.getEnclosingElement();
                     String packageName = processingEnvironment.getElementUtils().getPackageOf(enclosingElement).toString();
                     String className =  enclosingElement.getSimpleName().toString() + CodeGenerator.Names.GENERATE_CLASS_NAME_POSTFIX;
 
                     generator.setPackageStr(packageName);
                     generator.setClassStr(className);
                     generator.setCanonicalName(canonicalName);
+                    generator.setTypeMirror(enclosingElement.asType());
 
                     NostalgiaProcessor.generatorMap.put(canonicalName, generator);
                 } else {

@@ -3,6 +3,7 @@ package com.salmonzhg.nostalgia.processor;
 import com.google.auto.common.BasicAnnotationProcessor;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableSet;
+import com.salmonzhg.nostalgia.processor.step.LifecycleStep;
 import com.salmonzhg.nostalgia.processor.step.ReceiveStep;
 import com.salmonzhg.nostalgia.processor.step.TakeStep;
 
@@ -33,7 +34,8 @@ public class NostalgiaProcessor extends BasicAnnotationProcessor {
     protected Iterable<? extends ProcessingStep> initSteps() {
         return ImmutableSet.of(
                 new ReceiveStep(processingEnv),
-                new TakeStep(processingEnv)
+                new TakeStep(processingEnv),
+                new LifecycleStep(processingEnv)
         );
     }
 
