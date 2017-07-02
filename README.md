@@ -97,10 +97,10 @@ public class MainActivity extends AppCompatActivity {
 在项目根目录的build.gradle添加
 ```gradle
 allprojects {
-		repositories {
-			...
-			maven { url "https://jitpack.io" }
-		}
+	repositories {
+		...
+		maven { url "https://jitpack.io" }
+	}
 }
 ```
 
