@@ -1,5 +1,7 @@
 apply plugin: 'java'
+apply plugin: 'com.github.dcendents.android-maven'
 
+group='com.github.billy96322'
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'io.reactivex.rxjava2:rxjava:2.0.8'
@@ -7,3 +9,12 @@ dependencies {
 
 sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
+
+task sourcesJar(type : Jar) {
+    from sourceSets.main.allSource
+    classifier = 'source'
+}
+
+artifacts {
+    archives sourcesJar
+}

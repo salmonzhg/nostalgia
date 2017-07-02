@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
 
+group='com.github.billy96322'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
@@ -31,4 +33,17 @@ dependencies {
 
     compile 'com.trello.rxlifecycle2:rxlifecycle-components:2.0.1'
     compile project(':core')
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+task sourcesJar(type : Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+artifacts {
+    archives sourcesJar
 }
