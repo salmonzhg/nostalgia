@@ -8,6 +8,7 @@ package com.salmonzhg.nostalgia.core.lifecycleadapter;
  */
 
 public enum ActivityLifecycle {
+    UNDEFINED(-1),
     CREATE(0),
     START(1),
     RESUME(2),

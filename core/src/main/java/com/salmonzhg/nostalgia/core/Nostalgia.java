@@ -1,6 +1,7 @@
 package com.salmonzhg.nostalgia.core;
 
 import com.salmonzhg.nostalgia.core.annotation.Scheduler;
+import com.salmonzhg.nostalgia.core.lifecycleadapter.LifecycleAdapter;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -71,6 +72,10 @@ public class Nostalgia {
     }
 
     public static Unbinder bind(Object object) {
+        return bind(object, null);
+    }
+
+    public static Unbinder bind(Object object, LifecycleAdapter adapter) {
         initializationCheck();
 
         int hashCode = System.identityHashCode(object);
@@ -80,6 +85,11 @@ public class Nostalgia {
 
         if (unbinder == null || unbinder.isUnbound()) {
             unbinder = generateBinding(object);
+
+            if (unbinder instanceof BaseLifecycleUnbinder && adapter != null) {
+                ((BaseLifecycleUnbinder)unbinder).setLifecycleAdapter(adapter);
+            }
+
             bindMap.put(hashCode, unbinder);
         }
 
