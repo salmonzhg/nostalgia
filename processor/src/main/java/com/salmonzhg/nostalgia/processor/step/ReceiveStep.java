@@ -60,7 +60,7 @@ public class ReceiveStep extends BaseStep {
                 Generator generator = new Generator();
 
                 if (!NostalgiaProcessor.generatorMap.containsKey(canonicalName)) {
-                    String packageName = processingEnvironment.getElementUtils().getPackageOf(enclosingElement).toString();
+                    String packageName = processingEnvironment.getElementUtils().getPackageOf(enclosingElement).getQualifiedName().toString();
                     String className =  enclosingElement.getSimpleName().toString() + CodeGenerator.Names.GENERATE_CLASS_NAME_POSTFIX;
 
                     generator.setPackageStr(packageName);
