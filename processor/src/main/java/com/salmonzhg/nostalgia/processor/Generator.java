@@ -183,6 +183,7 @@ public class Generator {
                         .addModifiers(Modifier.PUBLIC)
                         .addAnnotation(Override.class)
                         .addParameter(Throwable.class, "t")
+                        .addCode(CodeBlock.builder().addStatement("t.printStackTrace()").build().toString())
                         .addException(Exception.class)
                         .build().toString()
                 +
