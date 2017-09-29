@@ -108,18 +108,18 @@ allprojects {
 ``` gradle
 dependencies {
 
-        compile 'com.github.billy96322.nostalgia:core:0.0.1'
+        compile 'com.github.billy96322.nostalgia:core:x.y.z'
         
-        annotationProcessor 'com.github.billy96322.nostalgia:processor:0.0.1'
+        annotationProcessor 'com.github.billy96322.nostalgia:processor:x.y.z'
 	
 	// nostalgia 需要依赖 RxAndroid 以提供初始化时的配置
 	compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
         
         // 以下根据需要选择一项
         // trello-adapter
-        compile 'com.github.billy96322.nostalgia:lifecycleadapter-rxlifecycle:0.0.1'
+        compile 'com.github.billy96322.nostalgia:lifecycleadapter-rxlifecycle:x.y.z'
         
         // zhihu-adapter
-        compile 'com.github.billy96322.nostalgia:lifecycleadapter-zhihu-rxlifecycle:0.0.1'
+        compile 'com.github.billy96322.nostalgia:lifecycleadapter-zhihu-rxlifecycle:x.y.z'
         
 }
